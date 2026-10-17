@@ -1,6 +1,9 @@
 # Clippings
 A Plugin that enables collecting tall grass, fern, dead bushes and cobwebs with shears for Poseidon Server Minecraft b1.7.3
 
+![example](https://raw.githubusercontent.com/alya-can-eat/Clippings/refs/heads/main/.img/Screenshot_2026-10-17%2016-40-11.png)
+![inventory](https://raw.githubusercontent.com/alya-can-eat/Clippings/refs/heads/main/.img/Screenshot_2026-10-17%2016-41-56.png)
+
 ---
 
 > [!WARNING]
