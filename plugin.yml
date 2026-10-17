@@ -1,0 +1,9 @@
+name: Clippings
+main: ch.alya.clippings.Clippings
+version: 1.0.0
+author: Alya
+description: Shears collect tall grass, ferns, dead bushes and cobwebs as blocks.
+permissions:
+  clippings.use:
+    description: Collect tall grass, ferns, dead bushes and cobwebs with shears.
+    default: true
