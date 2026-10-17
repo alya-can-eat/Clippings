@@ -36,7 +36,7 @@ Only tested with Project Poseidon. It may work on CraftBukkit 1060, but that is 
 
 ## Installation
 
-1. Put `Clippings*.jar` into the `plugins/` folder.
+1. Put `Clippings*.jar` into the `plugins/` folder. Get from here: https://github.com/alya-can-eat/Clippings/releases
 2. Start the server. `plugins/Clippings/config.yml` is created on the first start.
 
 ## Permissions
