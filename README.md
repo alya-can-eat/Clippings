@@ -23,7 +23,9 @@ This plugin lets shears collect them as blocks, like in later Minecraft versions
   - Dead shrub (`31:0`, the rare dead-bush-looking variant of tall grass)
   - Dead bush (`32`)
   - Cobweb (`30`)
+  - Grass block (`2`), see below
 - **Shears lose 1 durability** per block, like on leaves. They break when used up.
+- **Grass blocks use up a full shear**: only brand-new shears collect a grass block, and they are used up completely. One grass block costs one pair of shears (2 iron ingots). Used shears give dirt, like vanilla.
 - **Vanilla otherwise**: breaking by hand still drops seeds now and then, and other tools behave as before.
 
 ## Requirements
@@ -54,6 +56,7 @@ Only tested with Project Poseidon. It may work on CraftBukkit 1060, but that is 
 | `collect-tall-grass` | `true` | Shears collect tall grass, ferns and dead shrubs |
 | `collect-dead-bush` | `true` | Shears collect dead bushes |
 | `collect-cobweb` | `true` | Shears collect cobwebs instead of string |
+| `collect-grass-block` | `true` | Brand-new shears collect a grass block and are used up |
 | `fix-tall-grass-inventory` | `true` | Keep grass, fern and shrub items apart and place the right variant (see below) |
 
 ## How the tall grass fix works
