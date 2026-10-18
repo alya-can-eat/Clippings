@@ -32,6 +32,8 @@ public class Clippings extends JavaPlugin {
     private static final Logger LOG = Logger.getLogger("Minecraft");
 
     // block and item ids (Beta 1.7.3)
+    private static final int GRASS = 2;
+    private static final int DIRT = 3;
     private static final int WEB = 30;
     private static final int LONG_GRASS = 31;
     private static final int DEAD_BUSH = 32;
@@ -44,6 +46,7 @@ public class Clippings extends JavaPlugin {
     private boolean collectTallGrass;
     private boolean collectDeadBush;
     private boolean collectCobweb;
+    private boolean collectGrassBlock;
     private boolean fixTallGrassInventory;
 
     /** Item that was in Item.byId[31] before the swap, put back in onDisable(). */
@@ -52,8 +55,8 @@ public class Clippings extends JavaPlugin {
 
     /**
      * Vanilla drop to remove after a shears break. Vanilla still runs its own
-     * drop code right after BlockBreakEvent (seeds 1 in 8 for grass, string
-     * for cobwebs). Only lives until the next tick.
+     * drop code right after BlockBreakEvent (seeds 1 in 8 for tall grass,
+     * string for cobwebs, dirt for grass blocks). Only lives until the next tick.
      */
     private PendingBreak pending;
 
@@ -72,11 +75,13 @@ public class Clippings extends JavaPlugin {
         collectTallGrass = cfg.getBoolean("collect-tall-grass", true);
         collectDeadBush = cfg.getBoolean("collect-dead-bush", true);
         collectCobweb = cfg.getBoolean("collect-cobweb", true);
+        collectGrassBlock = cfg.getBoolean("collect-grass-block", true);
         fixTallGrassInventory = cfg.getBoolean("fix-tall-grass-inventory", true);
 
         cfg.setProperty("collect-tall-grass", collectTallGrass);
         cfg.setProperty("collect-dead-bush", collectDeadBush);
         cfg.setProperty("collect-cobweb", collectCobweb);
+        cfg.setProperty("collect-grass-block", collectGrassBlock);
         cfg.setProperty("fix-tall-grass-inventory", fixTallGrassInventory);
         cfg.save();
 
@@ -95,6 +100,7 @@ public class Clippings extends JavaPlugin {
         LOG.info("[Clippings] Enabled. Tall grass: " + onOff(collectTallGrass)
                 + ", dead bush: " + onOff(collectDeadBush)
                 + ", cobweb: " + onOff(collectCobweb)
+                + ", grass block: " + onOff(collectGrassBlock)
                 + ", tall grass inventory fix: " + onOff(itemSwapped));
     }
 
@@ -176,6 +182,42 @@ public class Clippings extends JavaPlugin {
         }
     }
 
+    /** Removes the vanilla drop of this block, it is spawned right after the event. */
+    private void removeVanillaDrop(Block b, int dropId) {
+        PendingBreak pb = new PendingBreak();
+        pb.world = b.getWorld();
+        pb.x = b.getX();
+        pb.y = b.getY();
+        pb.z = b.getZ();
+        pb.vanillaDropId = dropId;
+        pending = pb;
+        getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+            public void run() {
+                pending = null;
+            }
+        }, 1L);
+    }
+
+    /**
+     * Grass block: only with brand-new shears (no durability used), and the
+     * shears are used up completely. Used shears keep vanilla behaviour (dirt).
+     */
+    private void collectGrassBlock(Player p, Block b) {
+        EntityPlayer h = ((CraftPlayer) p).getHandle();
+        net.minecraft.server.ItemStack s = h.G();
+        if (s == null || s.id != SHEARS || s.getData() != 0) return;
+
+        // full durability as damage, the same way vanilla breaks a tool
+        s.damage(s.i() + 1, h);
+        if (s.count > 0) return; // damage cancelled by another plugin: vanilla dirt
+
+        s.a(h);
+        h.H(); // removes the used-up shears from the hand
+
+        removeVanillaDrop(b, DIRT);
+        b.getWorld().dropItemNaturally(b.getLocation(), new ItemStack(GRASS, 1));
+    }
+
     private class Blocks extends BlockListener {
         public void onBlockBreak(BlockBreakEvent e) {
             if (e.isCancelled()) return;
@@ -186,27 +228,20 @@ public class Clippings extends JavaPlugin {
 
             Block b = e.getBlock();
             int id = b.getTypeId();
-            if (!collects(id)) return;
             if (!p.hasPermission("clippings.use")) return;
 
-            // remember the vanilla drop, it is spawned right after this event
+            if (id == GRASS) {
+                if (collectGrassBlock) collectGrassBlock(p, b);
+                return;
+            }
+            if (!collects(id)) return;
+
             int vanillaDrop = vanillaDropId(id);
             if (vanillaDrop != -1) {
-                PendingBreak pb = new PendingBreak();
-                pb.world = b.getWorld();
-                pb.x = b.getX();
-                pb.y = b.getY();
-                pb.z = b.getZ();
-                pb.vanillaDropId = vanillaDrop;
-                pending = pb;
-                getServer().getScheduler().scheduleSyncDelayedTask(Clippings.this, new Runnable() {
-                    public void run() {
-                        pending = null;
-                    }
-                }, 1L);
+                removeVanillaDrop(b, vanillaDrop);
             }
 
-            // grass keeps its variant (0 shrub, 1 grass, 2 fern), the others have none
+            // tall grass keeps its variant (0 shrub, 1 grass, 2 fern), the others have none
             short data = (id == LONG_GRASS) ? (short) b.getData() : 0;
             b.getWorld().dropItemNaturally(b.getLocation(), new ItemStack(id, 1, data));
 
