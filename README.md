@@ -11,7 +11,7 @@ A Plugin that enables collecting tall grass, fern, dead bushes, cobwebs and gras
 
 ---
 
-In Beta 1.7.3, shears only collect leaves and wool. Tall grass, ferns, dead bushes and cobwebs can't be obtained in survival: grass only drops seeds now and then, dead bushes drop nothing, and cobwebs only drop string. Since cobwebs don't generate they remain unobtainable. A separate plugin is needed for cobwebs to be made accessible.
+In Beta 1.7.3, shears only collect leaves and wool. Tall grass, ferns, dead bushes, cobwebs and grass blocks can't be obtained in survival. Since cobwebs don't generate they remain unobtainable. A separate plugin is needed for cobwebs to be made accessible. (Check out https://github.com/alya-can-eat/Obtainables)
 
 This plugin lets shears collect them as blocks, like in later Minecraft versions.
 
